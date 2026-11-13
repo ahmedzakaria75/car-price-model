@@ -161,12 +161,8 @@ def get_model():
     eval_pipe = build_pipeline().fit(X_tr, y_tr)
     pred = eval_pipe.predict(X_te)
     metrics = {"r2": r2_score(y_te, pred), "mae": mean_absolute_error(y_te, pred)}
-    if MODEL_PATH.exists():
-        try:
-            return joblib.load(MODEL_PATH), metrics
-        except Exception:
-            pass
+    # Always train in-process: a pickled model saved with other library
+    # versions breaks on deployment (e.g. category_encoders mismatch).
     final = build_pipeline().fit(X, y)
-    joblib.dump(final, MODEL_PATH)
     return final, metrics
 
